@@ -26,7 +26,7 @@ func main() {
 
 	// If a username is provided as an argument, start with that username
 	if len(os.Args) > 1 {
-		nonce = os.Args[2]
+		username = os.Args[1]
 		fmt.Println("Provided username:", username)
 	}
 	// If a nonce is provided as an argument, start with that nonce
