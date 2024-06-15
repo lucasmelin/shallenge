@@ -69,24 +69,24 @@ func hashUsername(username string, nonce string) string {
 
 // getNextNonce generates the next nonce string by iterating through the charset
 func getNextNonce(currentNonce string) string {
-	nonceRunes := []rune(currentNonce)
+	nonceBytes := []byte(currentNonce)
 	// Iterate through nonce string from right to left
-	for i := len(nonceRunes) - 1; i >= 0; i-- {
-		index := strings.IndexRune(charset, nonceRunes[i])
+	for i := len(nonceBytes) - 1; i >= 0; i-- {
+		index := strings.IndexRune(charset, rune(nonceBytes[i]))
 		if index < len(charset)-1 {
 			// Increment the rune and return the new nonce
-			nonceRunes[i] = rune(charset[index+1])
-			return string(nonceRunes)
+			nonceBytes[i] = charset[index+1]
+			return string(nonceBytes)
 		} else {
 			// Set the rune to the first in the charset
-			nonceRunes[i] = rune(charset[0])
+			nonceBytes[i] = charset[0]
 		}
 	}
 
 	// Add a new rune to the left
-	nonceRunes = append([]rune{rune(charset[0])}, nonceRunes...)
+	nonceBytes = append([]byte{charset[0]}, nonceBytes...)
 
-	return string(nonceRunes)
+	return string(nonceBytes)
 }
 
 func prettyPrint(s string) string {
