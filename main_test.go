@@ -5,7 +5,7 @@ import (
 )
 
 func TestHashUsername(t *testing.T) {
-	result := hashUsername("lucasmelin", "aaaaaaaaaaaaabVMavi")
+	result := hashUsername("lucasmelin", []byte("aaaaaaaaaaaaabVMavi"))
 	expected := "0000000008abe5171e888ba62fef3b9794d8aa59c71e17922bd4407fc2f80e19"
 	if result != expected {
 		t.Errorf("Expected %s but got %s", expected, result)
@@ -13,17 +13,17 @@ func TestHashUsername(t *testing.T) {
 }
 
 func TestGetNextNonce(t *testing.T) {
-	result := getNextNonce("abc")
+	result := getNextNonce([]byte("abc"))
 	expected := "abd"
-	if result != expected {
+	if string(result) != expected {
 		t.Errorf("Expected %s but got %s", expected, result)
 	}
 }
 
 func TestGetNextNonceWithCarry(t *testing.T) {
-	result := getNextNonce("///")
+	result := getNextNonce([]byte("///"))
 	expected := "aaaa"
-	if result != expected {
+	if string(result) != expected {
 		t.Errorf("Expected %s but got %s", expected, result)
 	}
 }
@@ -57,14 +57,14 @@ func TestChunkWithUnevenSize(t *testing.T) {
 }
 
 func BenchmarkNonceCalculation(b *testing.B) {
-	nonce := "a"
+	nonce := []byte("a")
 	for i := 0; i < b.N; i++ {
 		nonce = getNextNonce(nonce)
 	}
 }
 
 func BenchmarkHashCalculation(b *testing.B) {
-	nonce := "a"
+	nonce := []byte("a")
 	for i := 0; i < b.N; i++ {
 		nonce = getNextNonce(nonce)
 		hashUsername("lucasmelin", nonce)

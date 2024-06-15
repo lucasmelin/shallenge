@@ -20,7 +20,7 @@ func main() {
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 
 	// Starting with "a" as the nonce and the worst possible result
-	nonce := "a"
+	nonce := []byte("a")
 	bestResult := "zzzzzz"
 	username := "lucasmelin"
 
@@ -31,15 +31,15 @@ func main() {
 	}
 	// If a nonce is provided as an argument, start with that nonce
 	if len(os.Args) > 2 {
-		nonce = os.Args[2]
-		fmt.Println("Starting with provided nonce:", nonce)
+		nonce = []byte(os.Args[2])
+		fmt.Printf("\nStarting with provided nonce: %s", nonce)
 	}
 	// If the best nonce is provided as an argument, calculate the
 	// best result for that nonce and use it as the starting point
 	if len(os.Args) > 3 {
-		bestNonce := os.Args[3]
+		bestNonce := []byte(os.Args[3])
 		bestResult = hashUsername(username, bestNonce)
-		fmt.Printf("Previous best result: Nonce %s, SHA256: %s\n\n", bestNonce, prettyPrint(bestResult))
+		fmt.Printf("\nPrevious best result: Nonce %s, SHA256: %s\n\n", bestNonce, prettyPrint(bestResult))
 	}
 	for {
 		select {
@@ -62,34 +62,32 @@ func main() {
 }
 
 // hashUsername hashes the username and nonce with SHA256 and returns the result
-func hashUsername(username string, nonce string) string {
-	hash := sha256.Sum256([]byte(username + "/" + nonce))
+func hashUsername(username string, nonce []byte) string {
+	user := []byte(username + "/")
+	hash := sha256.Sum256(append(user, nonce...))
 	return hex.EncodeToString(hash[:])
 }
 
 // getNextNonce generates the next nonce string by iterating through the charset
-func getNextNonce(currentNonce string) string {
-	nonceBytes := []byte(currentNonce)
+func getNextNonce(currentNonce []byte) []byte {
 	// Iterate through nonce string from right to left
-	for i := len(nonceBytes) - 1; i >= 0; i-- {
+	for i := len(currentNonce) - 1; i >= 0; i-- {
 		// Directly calculate the index of a character in the charset
 		// by subtracting the value of the first character in the charset
 		// from the current character.
-		index := int(nonceBytes[i] - charset[0])
+		index := int(currentNonce[i] - charset[0])
 		if index < len(charset)-1 {
 			// Increment the rune and return the new nonce
-			nonceBytes[i] = charset[index+1]
-			return string(nonceBytes)
+			currentNonce[i] = charset[index+1]
+			return currentNonce
 		} else {
 			// Set the rune to the first in the charset
-			nonceBytes[i] = charset[0]
+			currentNonce[i] = charset[0]
 		}
 	}
 
 	// Add a new rune to the left
-	nonceBytes = append([]byte{charset[0]}, nonceBytes...)
-
-	return string(nonceBytes)
+	return append([]byte{charset[0]}, currentNonce...)
 }
 
 func prettyPrint(s string) string {
