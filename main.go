@@ -72,7 +72,10 @@ func getNextNonce(currentNonce string) string {
 	nonceBytes := []byte(currentNonce)
 	// Iterate through nonce string from right to left
 	for i := len(nonceBytes) - 1; i >= 0; i-- {
-		index := strings.IndexRune(charset, rune(nonceBytes[i]))
+		// Directly calculate the index of a character in the charset
+		// by subtracting the value of the first character in the charset
+		// from the current character.
+		index := int(nonceBytes[i] - charset[0])
 		if index < len(charset)-1 {
 			// Increment the rune and return the new nonce
 			nonceBytes[i] = charset[index+1]
